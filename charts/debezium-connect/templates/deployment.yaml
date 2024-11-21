@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debezium-connect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: debezium-connect
+  template:
+    metadata:
+      labels:
+        app: debezium-connect
+    spec:
+      containers:
+        - name: debezium-connect
+          image: debezium/connect:{{ .Values.image.tag }}
+          env:
+            - name: BOOTSTRAP_SERVERS
+              value: "{{ .Values.env.BOOTSTRAP_SERVERS }}"
+            - name: GROUP_ID
+              value: "{{ .Values.env.GROUP_ID }}"
+            - name: CONFIG_STORAGE_TOPIC
+              value: "{{ .Values.env.CONFIG_STORAGE_TOPIC }}"
+            - name: OFFSET_STORAGE_TOPIC
+              value: "{{ .Values.env.OFFSET_STORAGE_TOPIC }}"
+            - name: STATUS_STORAGE_TOPIC
+              value: "{{ .Values.env.STATUS_STORAGE_TOPIC }}"
+            - name: ENABLE_DEBEZIUM_SCRIPTING
+              value: "{{ .Values.env.ENABLE_DEBEZIUM_SCRIPTING }}"
+            - name: CONFIG_STORAGE_REPLICATION_FACTOR
+              value: "{{ .Values.env.CONFIG_STORAGE_REPLICATION_FACTOR }}"
+            - name: OFFSET_STORAGE_REPLICATION_FACTOR
+              value: "{{ .Values.env.OFFSET_STORAGE_REPLICATION_FACTOR }}"
+            - name: STATUS_STORAGE_REPLICATION_FACTOR
+              value: "{{ .Values.env.STATUS_STORAGE_REPLICATION_FACTOR }}"
+            - name: CONNECT_KEY_CONVERTER
+              value: "{{ .Values.extraEnv.CONNECT_KEY_CONVERTER }}"
+            - name: CONNECT_VALUE_CONVERTER
+              value: "{{ .Values.env.KAFKA_ADVERTISED_LISTENERS }}"
+            - name: CONNECT_KEY_CONVERTER
+              value: "{{ .Values.extraEnv.CONNECT_KEY_CONVERTER }}"
+            - name: CONNECT_VALUE_CONVERTER
+              value: "{{ .Values.extraEnv.CONNECT_VALUE_CONVERTER }}"
+            - name: CONNECT_INTERNAL_KEY_CONVERTER
+              value: "{{ .Values.extraEnv.CONNECT_INTERNAL_KEY_CONVERTER }}"
+            - name: CONNECT_INTERNAL_VALUE_CONVERTER
+              value: "{{ .Values.extraEnv.CONNECT_INTERNAL_VALUE_CONVERTER }}"
+            - name: CONNECT_REST_ADVERTISED_HOST_NAME
+              value: "{{ .Values.extraEnv.CONNECT_REST_ADVERTISED_HOST_NAME }}"
+            - name: CONNECT_GROUP_ID
+              value: "{{ .Values.extraEnv.CONNECT_GROUP_ID }}"
+            - name: CONNECT_CONFIG_STORAGE_TOPIC
+              value: "{{ .Values.extraEnv.CONNECT_CONFIG_STORAGE_TOPIC }}"
+            - name: CONNECT_OFFSET_STORAGE_TOPIC
+              value: "{{ .Values.extraEnv.CONNECT_OFFSET_STORAGE_TOPIC }}"
+            - name: CONNECT_STATUS_STORAGE_TOPIC
+              value: "{{ .Values.extraEnv.CONNECT_STATUS_STORAGE_TOPIC }}"
+          ports:
+            - containerPort: 8083
