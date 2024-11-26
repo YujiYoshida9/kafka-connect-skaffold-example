@@ -1,100 +1,102 @@
+# Skaffold configuration file for managing deployments
 apiVersion: skaffold/v4beta11
 kind: Config
 metadata:
-  name: kafka-connect-example
+  name: kafka-connect-example  # Name of the Skaffold project
+
 deploy:
   helm:
     releases:
+      # Helm release for deploying Debezium Postgres
       - name: debezium-postgres
         chartPath: charts/debezium-postgres
         setValues:
-          image.tag: "14"
-          env.POSTGRES_PASSWORD: "123"
-          env.POSTGRES_USER: "postgres"
-          env.POSTGRES_DB: "cdc-using-debezium"
+          image.tag: "14"  # Tag for the Postgres image
+          env.POSTGRES_PASSWORD: "123"  # Password for the Postgres user
+          env.POSTGRES_USER: "postgres"  # Username for Postgres
+          env.POSTGRES_DB: "cdc-using-debezium"  # Database name to be created in Postgres
       
+      # Helm release for deploying Debezium Connect
       - name: debezium-connect
         chartPath: charts/debezium-connect
-        namespace: default  # 名前空間を確認
+        namespace: default  # Kubernetes namespace for the deployment
         setValues:
-          image.tag: "2.4"
-          env.BOOTSTRAP_SERVERS: "kafka-dev-controller-0.kafka-dev-controller-headless.default.svc.cluster.local:9092"  # サービス名とポートを確認
-          env.GROUP_ID: "1"
-          env.CONFIG_STORAGE_TOPIC: "my_connect_configs"
-          env.OFFSET_STORAGE_TOPIC: "my_connect_offsets"
-          env.STATUS_STORAGE_TOPIC: "my_connect_statuses"
-          env.ENABLE_DEBEZIUM_SCRIPTING: "true"
-          extraEnv.CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-          extraEnv.CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-          extraEnv.CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-          extraEnv.CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-          extraEnv.CONNECT_REST_ADVERTISED_HOST_NAME: "debezium-connect"
-          extraEnv.CONNECT_GROUP_ID: "1"
-          extraEnv.CONNECT_CONFIG_STORAGE_TOPIC: "my_connect_configs"
-          extraEnv.CONNECT_OFFSET_STORAGE_TOPIC: "my_connect_offsets"
-          extraEnv.CONNECT_STATUS_STORAGE_TOPIC: "my_connect_statuses"
-          extraEnv.CONFIG_STORAGE_REPLICATION_FACTOR: "1"
-          extraEnv.OFFSET_STORAGE_REPLICATION_FACTOR: "1"
-          extraEnv.STATUS_STORAGE_REPLICATION_FACTOR: "1"
+          image.tag: "2.4"  # Tag for the Debezium Connect image
+          env.BOOTSTRAP_SERVERS: "kafka-dev.default.svc.cluster.local:9092"  # Kafka bootstrap servers
+          env.GROUP_ID: "1"  # Kafka consumer group ID for Debezium Connect
+          env.CONFIG_STORAGE_TOPIC: "my_connect_configs"  # Kafka topic for storing connector configurations
+          env.OFFSET_STORAGE_TOPIC: "my_connect_offsets"  # Kafka topic for storing connector offsets
+          env.STATUS_STORAGE_TOPIC: "my_connect_statuses"  # Kafka topic for storing connector statuses
+          env.ENABLE_DEBEZIUM_SCRIPTING: "true"  # Enable scripting in Debezium
+          env.CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"  # Converter for keys
+          env.CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"  # Converter for values
+          env.CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"  # Internal key converter
+          env.CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"  # Internal value converter
+          env.CONNECT_REST_ADVERTISED_HOST_NAME: "debezium-connect"  # Hostname for REST API
+          env.CONNECT_GROUP_ID: "1"  # Group ID for Debezium Connect
+          env.CONFIG_STORAGE_REPLICATION_FACTOR: "1"  # Replication factor for config storage
+          env.OFFSET_STORAGE_REPLICATION_FACTOR: "1"  # Replication factor for offset storage
+          env.STATUS_STORAGE_REPLICATION_FACTOR: "1"  # Replication factor for status storage
           service:
-            type: ClusterIP
+            type: ClusterIP  # Service type for Debezium Connect
             ports:
-              - port: 8083
-                targetPort: 8083
-                protocol: TCP
+              - port: 8083  # Port for the service
+                targetPort: 8083  # Target port for the service
+                protocol: TCP  # Protocol for the service
 
+      # Helm release for deploying Kafka
       - name: kafka
         chartPath: charts/kafka
-        namespace: default  # 名前空間を確認
+        namespace: default  # Kubernetes namespace for the deployment
         setValues:
-          service.type: ClusterIP
-          persistence.enabled: true
-          persistence.size: 8Gi
-          zookeeper.enabled: false
+          service.type: ClusterIP  # Service type for Kafka
+          persistence.enabled: true  # Enable persistence for Kafka
+          persistence.size: 8Gi  # Size of the persistent storage
+          zookeeper.enabled: false  # Disable Zookeeper
 
 profiles:
-  - name: dev
+  - name: dev  # Development profile
     deploy:
       helm:
         releases:
+          # Helm release for deploying Debezium Postgres in development profile
           - name: debezium-postgres-dev
             chartPath: charts/debezium-postgres
-            namespace: default  # 名前空間を確認
+            namespace: default  # Kubernetes namespace for the deployment
             setValues:
-              image.tag: "14"
-              env.POSTGRES_PASSWORD: "123"
-              env.POSTGRES_USER: "postgres"
-              env.POSTGRES_DB: "cdc-using-debezium"
+              image.tag: "14"  # Tag for the Postgres image
+              env.POSTGRES_PASSWORD: "123"  # Password for the Postgres user
+              env.POSTGRES_USER: "postgres"  # Username for Postgres
+              env.POSTGRES_DB: "cdc-using-debezium"  # Database name to be created in Postgres
           
+          # Helm release for deploying Debezium Connect in development profile
           - name: debezium-connect-dev
             chartPath: charts/debezium-connect
-            namespace: default  # 名前空間を確認
+            namespace: default  # Kubernetes namespace for the deployment
             setValues:
-              image.tag: "2.4"
-              env.BOOTSTRAP_SERVERS: "kafka-dev-controller-0.kafka-dev-controller-headless.default.svc.cluster.local:9092"  # サービス名とポートを確認
-              env.GROUP_ID: "1"
-              env.CONFIG_STORAGE_TOPIC: "my_connect_configs"
-              env.OFFSET_STORAGE_TOPIC: "my_connect_offsets"
-              env.STATUS_STORAGE_TOPIC: "my_connect_statuses"
-              env.ENABLE_DEBEZIUM_SCRIPTING: "true"
-              extraEnv.CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-              extraEnv.CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-              extraEnv.CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-              extraEnv.CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-              extraEnv.CONNECT_REST_ADVERTISED_HOST_NAME: "debezium-connect"
-              extraEnv.CONNECT_GROUP_ID: "1"
-              extraEnv.CONNECT_CONFIG_STORAGE_TOPIC: "my_connect_configs"
-              extraEnv.CONNECT_OFFSET_STORAGE_TOPIC: "my_connect_offsets"
-              extraEnv.CONNECT_STATUS_STORAGE_TOPIC: "my_connect_statuses"
-              extraEnv.CONFIG_STORAGE_REPLICATION_FACTOR: "1"
-              extraEnv.OFFSET_STORAGE_REPLICATION_FACTOR: "1"
-              extraEnv.STATUS_STORAGE_REPLICATION_FACTOR: "1"
+              image.tag: "2.4"  # Tag for the Debezium Connect image
+              env.BOOTSTRAP_SERVERS: "kafka-dev.default.svc.cluster.local:9092"  # Kafka bootstrap servers
+              env.GROUP_ID: "1"  # Kafka consumer group ID for Debezium Connect
+              env.CONFIG_STORAGE_TOPIC: "my_connect_configs"  # Kafka topic for storing connector configurations
+              env.OFFSET_STORAGE_TOPIC: "my_connect_offsets"  # Kafka topic for storing connector offsets
+              env.STATUS_STORAGE_TOPIC: "my_connect_statuses"  # Kafka topic for storing connector statuses
+              env.ENABLE_DEBEZIUM_SCRIPTING: "true"  # Enable scripting in Debezium
+              env.CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"  # Converter for keys
+              env.CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"  # Converter for values
+              env.CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"  # Internal key converter
+              env.CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"  # Internal value converter
+              env.CONNECT_REST_ADVERTISED_HOST_NAME: "debezium-connect"  # Hostname for REST API
+              env.CONNECT_GROUP_ID: "1"  # Group ID for Debezium Connect
+              env.CONFIG_STORAGE_REPLICATION_FACTOR: "1"  # Replication factor for config storage
+              env.OFFSET_STORAGE_REPLICATION_FACTOR: "1"  # Replication factor for offset storage
+              env.STATUS_STORAGE_REPLICATION_FACTOR: "1"  # Replication factor for status storage
 
+          # Helm release for deploying Kafka in development profile
           - name: kafka-dev
             chartPath: charts/kafka
-            namespace: default  # 名前空間を確認
+            namespace: default  # Kubernetes namespace for the deployment
             setValues:
-              service.type: ClusterIP
-              persistence.enabled: true
-              persistence.size: 8Gi
-              zookeeper.enabled: false
+              service.type: ClusterIP  # Service type for Kafka
+              persistence.enabled: true  # Enable persistence for Kafka
+              persistence.size: 8Gi  # Size of the persistent storage
+              zookeeper.enabled: false  # Disable Zookeeper
