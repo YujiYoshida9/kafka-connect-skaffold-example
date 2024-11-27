@@ -1,5 +1,5 @@
 env:
-  BOOTSTRAP_SERVERS: "kafka-dev-controller-0.kafka-dev-controller-headless.default.svc.cluster.local:9092"  # サービス名とポートを確認
+  BOOTSTRAP_SERVERS: "kafka-dev.default.svc.cluster.local:9092"  # Check the service name and port
   GROUP_ID: "1"
   CONFIG_STORAGE_TOPIC: "my_connect_configs"
   OFFSET_STORAGE_TOPIC: "my_connect_offsets"
