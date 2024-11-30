@@ -30,8 +30,8 @@ curl -X POST -H "Content-Type: application/json" --data '{
     "database.hostname": "debezium-postgres",
     "database.port": "5432",
     "database.user": "postgres",
-    "database.password": "123",
-    "database.dbname": "cdc-using-debezium",
+    "database.password": "password",
+    "database.dbname": "postgresdb",
     "database.server.name": "dbserver1",
     "table.include.list": "public.inventory",
     "topic.prefix": "dbserver1"

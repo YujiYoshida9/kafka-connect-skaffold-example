@@ -11,10 +11,10 @@ deploy:
       - name: debezium-postgres
         chartPath: charts/debezium-postgres
         setValues:
-          image.tag: "14"  # Tag for the Postgres image
-          env.POSTGRES_PASSWORD: "123"  # Password for the Postgres user
+          image.tag: "17"  # Tag for the Postgres image
+          env.POSTGRES_PASSWORD: "password"  # Password for the Postgres user
           env.POSTGRES_USER: "postgres"  # Username for Postgres
-          env.POSTGRES_DB: "cdc-using-debezium"  # Database name to be created in Postgres
+          env.POSTGRES_DB: "postgresdb"  # Database name to be created in Postgres
       
       # Helm release for deploying Debezium Connect
       - name: debezium-connect
@@ -64,10 +64,10 @@ profiles:
             chartPath: charts/debezium-postgres
             namespace: default  # Kubernetes namespace for the deployment
             setValues:
-              image.tag: "14"  # Tag for the Postgres image
-              env.POSTGRES_PASSWORD: "123"  # Password for the Postgres user
+              image.tag: "17"  # Tag for the Postgres image
+              env.POSTGRES_PASSWORD: "password"  # Password for the Postgres user
               env.POSTGRES_USER: "postgres"  # Username for Postgres
-              env.POSTGRES_DB: "cdc-using-debezium"  # Database name to be created in Postgres
+              env.POSTGRES_DB: "postgresdb"  # Database name to be created in Postgres
           
           # Helm release for deploying Debezium Connect in development profile
           - name: debezium-connect-dev
